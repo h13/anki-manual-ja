@@ -1,0 +1,242 @@
+name: Sync with upstream
+
+on:
+  schedule:
+    # 毎日朝5時（JST）
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+    inputs:
+      create_pr:
+        description: 'Create PR instead of auto-merge'
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Dry run (no push/PR)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+    sync:
+      runs-on: ubuntu-latest
+      outputs:
+        has_changes: ${{ steps.sync.outputs.has_changes }}
+        pr_url: ${{ steps.pr.outputs.pr_url }}
+
+      steps:
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+        continue-on-error: true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Load sync configuration
+        id: config
+        run: |
+          if [ -f .github/sync-config.yml ]; then
+            echo "config_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "config_exists=false" >> $GITHUB_OUTPUT
+            echo "::warning::No sync configuration found. Using default exclusions."
+          fi
+
+      - name: Add upstream
+        run: |
+          git remote add upstream https://github.com/ankitects/anki-manual.git
+          git fetch upstream
+
+      - name: Check for updates
+        id: check
+        run: |
+          LOCAL_COMMIT=$(git rev-parse HEAD)
+          UPSTREAM_COMMIT=$(git rev-parse upstream/main)
+          
+          if git merge-base --is-ancestor $UPSTREAM_COMMIT HEAD; then
+            echo "✅ Already up to date with upstream"
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+          else
+            echo "📦 Updates available from upstream"
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            echo "upstream_commit=$UPSTREAM_COMMIT" >> $GITHUB_OUTPUT
+            echo "upstream_short=$(git rev-parse --short upstream/main)" >> $GITHUB_OUTPUT
+            
+            # Get commit count
+            COMMIT_COUNT=$(git rev-list --count HEAD..upstream/main)
+            echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+            echo "📊 $COMMIT_COUNT new commits from upstream"
+          fi
+
+      - name: Create sync branch
+        if: steps.check.outputs.has_updates == 'true'
+        id: branch
+        run: |
+          BRANCH_NAME="sync/upstream-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b $BRANCH_NAME
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - name: Perform sync
+        if: steps.check.outputs.has_updates == 'true'
+        id: sync
+        run: |
+          # Start merge
+          echo "🔄 Starting merge from upstream/main..."
+          git merge upstream/main --no-commit --no-ff || true
+          
+          # Read exclusions from config or use defaults
+          if [ "${{ steps.config.outputs.config_exists }}" == "true" ]; then
+            # Parse YAML and exclude files
+            yq eval '.exclude[]' .github/sync-config.yml | while read -r pattern; do
+              echo "📁 Excluding: $pattern"
+              git reset HEAD -- "$pattern" 2>/dev/null || true
+              git checkout -- "$pattern" 2>/dev/null || true
+            done
+          else
+            # Default exclusions
+            for pattern in "src-ja/" "book.toml" ".github/workflows/sync-upstream.yml"; do
+              echo "📁 Excluding (default): $pattern"
+              git reset HEAD -- "$pattern" 2>/dev/null || true
+              git checkout -- "$pattern" 2>/dev/null || true
+            done
+          fi
+          
+          # Handle conflicts
+          CONFLICTS=$(git diff --name-only --diff-filter=U)
+          if [ -n "$CONFLICTS" ]; then
+            echo "⚠️ Conflicts detected:"
+            echo "$CONFLICTS"
+            
+            # Auto-resolve based on config
+            if [ "${{ steps.config.outputs.config_exists }}" == "true" ]; then
+              echo "$CONFLICTS" | while read -r file; do
+                # Check conflict resolution rules
+                if yq eval ".conflict_resolution.ours[] | select(. == \"$file\" or . == \"${file%/*}/**\")" .github/sync-config.yml | grep -q .; then
+                  echo "🔧 Keeping our version: $file"
+                  git checkout --ours "$file" && git add "$file"
+                elif yq eval ".conflict_resolution.theirs[] | select(. == \"$file\" or . == \"${file%/*}/**\")" .github/sync-config.yml | grep -q .; then
+                  echo "🔧 Taking upstream version: $file"
+                  git checkout --theirs "$file" && git add "$file"
+                fi
+              done
+            fi
+            
+            # Check remaining conflicts
+            if git diff --name-only --diff-filter=U | grep -q .; then
+              echo "❌ Unresolved conflicts remain"
+              echo "unresolved_conflicts=true" >> $GITHUB_OUTPUT
+            fi
+          fi
+          
+          # Check for changes
+          if ! git diff --cached --quiet; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            
+            # Collect change summary
+            echo "CHANGE_SUMMARY<<EOF" >> $GITHUB_ENV
+            echo "### 📊 Change Summary" >> $GITHUB_ENV
+            echo "" >> $GITHUB_ENV
+            echo "**Modified files:** $(git diff --cached --name-only | wc -l)" >> $GITHUB_ENV
+            echo "" >> $GITHUB_ENV
+            echo "<details>" >> $GITHUB_ENV
+            echo "<summary>File changes</summary>" >> $GITHUB_ENV
+            echo "" >> $GITHUB_ENV
+            echo '```diff' >> $GITHUB_ENV
+            git diff --cached --stat | head -50 >> $GITHUB_ENV
+            echo '```' >> $GITHUB_ENV
+            echo "</details>" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+            
+            # Commit
+            if [ "${{ github.event.inputs.dry_run }}" != "true" ]; then
+              git commit -m "sync: Update from upstream ankitects/anki-manual@${{ steps.check.outputs.upstream_short }}
+
+              Auto-sync from upstream repository
+              Commits synced: ${{ steps.check.outputs.commit_count }}
+              
+              Excluded from sync:
+              $([ "${{ steps.config.outputs.config_exists }}" == "true" ] && yq eval '.exclude[] | "- " + .' .github/sync-config.yml || echo "- src-ja/\n- book.toml\n- .github/workflows/sync-upstream.yml")"
+            fi
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No changes after exclusions"
+          fi
+
+      - name: Push changes
+        if: steps.check.outputs.has_updates == 'true' && steps.sync.outputs.has_changes == 'true' && github.event.inputs.dry_run != 'true'
+        run: |
+          git push -u origin ${{ steps.branch.outputs.branch_name }}
+
+      - name: Create Pull Request
+        if: steps.check.outputs.has_updates == 'true' && steps.sync.outputs.has_changes == 'true' && github.event.inputs.dry_run != 'true'
+        id: pr
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}
+        run: |
+          PR_BODY="## 🔄 Automated Upstream Sync
+
+          This PR syncs changes from [ankitects/anki-manual@${{ steps.check.outputs.upstream_short }}](https://github.com/ankitects/anki-manual/commit/${{ steps.check.outputs.upstream_commit }})
+
+          ### 📈 Sync Statistics
+          - **Commits synced:** ${{ steps.check.outputs.commit_count }}
+          - **Source:** \`upstream/main\`
+          - **Target:** \`main\`
+
+          ${{ env.CHANGE_SUMMARY }}
+
+          ### 🛡️ Protected Files
+          The following patterns were excluded from sync:
+          $([ "${{ steps.config.outputs.config_exists }}" == "true" ] && yq eval '.exclude[] | "- `" + . + "`"' .github/sync-config.yml || echo "- \`src-ja/\`\n- \`book.toml\`\n- \`.github/workflows/sync-upstream.yml\`")
+
+          ${{ steps.sync.outputs.unresolved_conflicts == 'true' && '### ⚠️ Manual Review Required\n\nThis PR contains conflicts that need manual resolution.' || '### ✅ Auto-merge\n\nThis PR will be automatically merged if all checks pass.' }}
+
+          ---
+          <sub>🤖 Generated by GitHub Actions workflow \`sync-upstream.yml\`</sub>"
+
+          # Create PR
+          PR_URL=$(gh pr create \
+            --title "🔄 Sync: Update from upstream (${{ steps.check.outputs.commit_count }} commits)" \
+            --body "$PR_BODY" \
+            --base main \
+            --head ${{ steps.branch.outputs.branch_name }} \
+            --label "upstream-sync,automated${{ steps.sync.outputs.unresolved_conflicts == 'true' && ',needs-review' || '' }}")
+          
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+          echo "✅ Created PR: $PR_URL"
+
+          # Auto-merge if no conflicts and not manual mode
+          if [ "${{ github.event.inputs.create_pr }}" != "true" ] && [ "${{ steps.sync.outputs.unresolved_conflicts }}" != "true" ]; then
+            echo "🤖 Enabling auto-merge..."
+            gh pr merge --auto --merge "$PR_URL"
+          fi
+
+    notify:
+      needs: sync
+      if: always() && needs.sync.outputs.has_changes == 'true'
+      runs-on: ubuntu-latest
+      
+      steps:
+      - name: Create issue for conflicts
+        if: needs.sync.outputs.unresolved_conflicts == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "🔄 Upstream sync requires manual intervention" \
+            --body "The automated sync workflow has created a PR that requires manual conflict resolution: ${{ needs.sync.outputs.pr_url }}" \
+            --label "upstream-sync,needs-attention"
