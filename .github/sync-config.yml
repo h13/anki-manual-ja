@@ -1,0 +1,30 @@
+# Sync configuration for upstream synchronization
+# This file defines which files/directories to exclude from upstream sync
+
+exclude:
+  # Japanese translations
+  - src-ja/
+  
+  # Japanese-specific configuration
+  - book.toml
+  
+  # GitHub workflows
+  - .github/workflows/sync-upstream.yml
+  - .github/sync-config.yml
+  
+  # Repository-specific files
+  - README.md
+  - LICENSE
+  - .gitignore
+
+# Files to handle specially during conflicts
+conflict_resolution:
+  # Always keep our version
+  ours:
+    - "*.toml"
+    - ".github/**"
+  
+  # Always take upstream version
+  theirs:
+    - "css/**"
+    - "theme/**"
