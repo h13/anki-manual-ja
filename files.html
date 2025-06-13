@@ -1,0 +1,399 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>ファイル管理 - Ankiマニュアル</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Ankiのユーザーマニュアル。Ankiは学習を容易にするフラッシュカードプログラムです。">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="css/misc.css">
+        <link rel="stylesheet" href="css/mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Ankiマニュアル</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/ankitects/anki-manual/" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="ファイルとコレクションの管理"><a class="header" href="#ファイルとコレクションの管理">ファイルとコレクションの管理</a></h1>
+<ul>
+<li><a href="#%E3%82%B3%E3%83%AC%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE%E3%83%81%E3%82%A7%E3%83%83%E3%82%AF">コレクションのチェック</a></li>
+<li><a href="#%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%81%AE%E5%A0%B4%E6%89%80">ファイルの場所</a></li>
+<li><a href="#%E8%B5%B7%E5%8B%95%E3%82%AA%E3%83%97%E3%82%B7%E3%83%A7%E3%83%B3">起動オプション</a></li>
+<li><a href="#dropbox%E3%81%A8%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E5%90%8C%E6%9C%9F">DropBoxとファイル同期</a></li>
+<li><a href="#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0">ネットワークファイルシステム</a></li>
+<li><a href="#%E3%83%95%E3%83%A9%E3%83%83%E3%82%B7%E3%83%A5%E3%83%89%E3%83%A9%E3%82%A4%E3%83%96%E3%81%8B%E3%82%89%E3%81%AE%E5%AE%9F%E8%A1%8C">フラッシュドライブからの実行</a></li>
+<li><a href="#%E3%83%90%E3%83%83%E3%82%AF%E3%82%A2%E3%83%83%E3%83%97">バックアップ</a></li>
+<li><a href="#%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9%E3%81%A7%E3%81%8D%E3%81%AA%E3%81%84%E3%83%8F%E3%83%BC%E3%83%89%E3%83%87%E3%82%A3%E3%82%B9%E3%82%AF">アクセスできないハードディスク</a></li>
+<li><a href="#temp%E3%83%95%E3%82%A9%E3%83%AB%E3%83%80%E3%81%AE%E6%A8%A9%E9%99%90">Tempフォルダの権限</a></li>
+<li><a href="#%E7%A0%B4%E6%90%8D%E3%81%97%E3%81%9F%E3%82%B3%E3%83%AC%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3">破損したコレクション</a>
+<ul>
+<li><a href="#linuxmacos">Linux/macOS</a></li>
+<li><a href="#windows">Windows</a></li>
+<li><a href="#%E6%9C%80%E7%B5%82%E3%82%B9%E3%83%86%E3%83%83%E3%83%97">最終ステップ</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="コレクションのチェック"><a class="header" href="#コレクションのチェック">コレクションのチェック</a></h2>
+<p>定期的にコレクションファイルの問題をチェックすることをお勧めします。ツール&gt;データベースをチェックメニューアイテムから実行できます。
+データベースのチェックは、ファイルが破損していないことを確認し、いくつかの内部構造を再構築し、ファイルを最適化します。</p>
+<p>データベースをチェックすると、タグリストも再構築されます。個々のデッキやカードを削除しても、Ankiは使用されているタグのリストを更新しません。非効率的だからです。使用されなくなった古いタグをリストからクリアしたい場合は、データベースのチェックが方法です。</p>
+<p>Ankiは2週間に1回、コレクションを自動的に最適化することに注意してください。この最適化はコレクションのパフォーマンスを確保しますが、自動最適化時にはエラーのチェックやタグリストの再構築は行いません。</p>
+<h2 id="ファイルの場所"><a class="header" href="#ファイルの場所">ファイルの場所</a></h2>
+<p><strong>Windows</strong>では、最新のAnkiバージョンはAnkiファイルをappdataフォルダに保存します。ファイルマネージャーを開き、場所フィールドに<code>%APPDATA%\Anki2</code>と入力することでアクセスできます。古いバージョンのAnkiは、<code>Documents</code>フォルダ内の<code>Anki</code>というフォルダにAnkiファイルを保存していました。</p>
+<p><strong>Mac</strong>コンピュータでは、最近のAnkiバージョンはすべてのファイルを<code>~/Library/Application Support/Anki2</code>フォルダに保存します。Libraryフォルダはデフォルトで非表示になっていますが、Goメニューをクリックしながらoptionキーを押すことでFinderで表示できます。古いAnkiバージョンを使用している場合、Ankiファイルは<code>Documents/Anki</code>フォルダにあります。</p>
+<p><strong>Linux</strong>では、最近のAnkiバージョンはデータを<code>~/.local/share/Anki2</code>、またはカスタムデータパスを設定している場合は<code>$XDG_DATA_HOME/Anki2</code>に保存します。サードパーティの<strong>Flatpak</strong>ビルドを使用している場合、ファイルは<code>~/.var/app/net.ankiweb.Anki/data/Anki2/</code>にあります。
+古いバージョンのAnkiはファイルを<code>~/Documents/Anki</code>または<code>~/Anki</code>に保存していました。</p>
+<p>Ankiフォルダ内では、プログラムレベルとプロファイルレベルの設定がprefs.dbというファイルに保存されています。</p>
+<p>各プロファイルには個別のフォルダもあります。フォルダには以下が含まれます：</p>
+<ul>
+<li>
+<p>collection.anki2というファイルにノート、デッキ、カードなど</p>
+</li>
+<li>
+<p>collection.mediaフォルダに音声と画像</p>
+</li>
+<li>
+<p>backupsフォルダ</p>
+</li>
+<li>
+<p>いくつかのシステムファイル</p>
+</li>
+</ul>
+<p>Ankiが開いている間は、コレクションをコピーまたは移動してはいけません。そうするとコレクションが破損する可能性があります。フォルダ内の他のファイルも移動や変更しないでください。</p>
+<h2 id="起動オプション"><a class="header" href="#起動オプション">起動オプション</a></h2>
+<p>あるコンピュータで破壊的な変更を加え、別のコンピュータに損傷のないコピーがある場合、まず変更をダウンロードせずに完全同期オプションを使用するために、同期せずにAnkiを起動したい場合があります。同様に、Ankiで問題が発生している場合、問題を引き起こしている可能性があるかどうかを確認するために、一時的にアドオンを無効にする必要があるかもしれません（または指示されるかもしれません）。これらの両方を同時に行うには、Ankiの起動時に<kbd>Shift</kbd>キーを押したままにすることで、Ankiをセーフモードで開くことができます。画面上のメッセージがAnkiがセーフモードで起動したことを通知するまで<kbd>Shift</kbd>を押し続けてください。</p>
+<p>起動時にカスタムフォルダの場所を指定することができます。これは主にポータブルインストールで使用することを意図した高度な機能であり、ほとんどの場合はデフォルトの場所を使用することをお勧めします。</p>
+<p>代替フォルダを指定する構文は次のとおりです：</p>
+<pre><code>anki -b /path/to/anki/folder
+</code></pre>
+<ul>
+<li>
+<p>複数のプロファイルがある場合、-p &lt;name&gt;を渡して特定のプロファイルを読み込むことができます。</p>
+</li>
+<li>
+<p>-p some-fake-nameを渡すと、Ankiは起動時にプロファイル画面を表示します。
+プロファイルが提供されない場合、最後に使用されたプロファイルが読み込まれます。</p>
+</li>
+<li>
+<p>インターフェース言語を変更するには、-l &lt;iso 639-1 言語コード&gt;を使用します（例：日本語の場合は“-l ja“）。</p>
+</li>
+</ul>
+<p>常にカスタムフォルダの場所を使用したい場合は、Ankiへのショートカットを変更できます。Windowsでは、ショートカットを右クリックし、プロパティを選択し、ショートカットタブを選択し、プログラムへのパスの後に“-b \path\to\data\folder“を追加します。結果は次のようになります：</p>
+<pre><code>"C:\Program Files\Anki\anki.exe" -b "C:\AnkiDataFolder"
+</code></pre>
+<p>このテクニックを-lオプションと共に使用して、Ankiを異なる言語で簡単に使用することもできます。</p>
+<p>Windowsでは、フォワードスラッシュ（/）ではなくバックスラッシュ（\）を使用する必要があります。</p>
+<p>MacでAnkiアイコンをクリックしたときの動作を簡単に変更する方法はありませんが、ターミナルからカスタムベースフォルダでAnkiを起動することは可能です：</p>
+<pre><code>open /Applications/Anki.app --args -b ~/myankifolder
+</code></pre>
+<p>代わりに、環境変数“ANKI_BASE“を定義することもできます。
+Windowsでは、次のように環境変数を定義できます：</p>
+<pre><code>set "ANKI_BASE=C:/path/to/AnkiDataFolder"
+</code></pre>
+<p>LinuxとmacOSでは、次を使用できます：</p>
+<pre><code>export ANKI_BASE="/path/to/AnkiDataFolder"
+</code></pre>
+<h2 id="dropboxとファイル同期"><a class="header" href="#dropboxとファイル同期">DropBoxとファイル同期</a></h2>
+<p>Ankiフォルダをサードパーティの同期サービスと直接同期することはお勧めしません。使用中にファイルが同期されるとデータベースの破損につながる可能性があるためです。</p>
+<p>メディアだけを同期したい場合は、DropBoxなどのサービスに外部フォルダをリンクできます。詳細については<a href="http://web.archive.org/web/20180919153730/http://www.dropboxwiki.com/tips-and-tricks/sync-other-folders">DropboxWiki: Sync Folders Outside Dropbox (archive.org)</a>を参照してください。</p>
+<p>コレクションも同期したい場合は、同期フォルダからローカルフォルダにファイルをコピーし、Ankiを起動し、Ankiが閉じられたときにファイルをコピーバックするスクリプトを作成することを強くお勧めします。これにより、ファイルが開いている間に同期されることがなくなります。</p>
+<h2 id="ネットワークファイルシステム"><a class="header" href="#ネットワークファイルシステム">ネットワークファイルシステム</a></h2>
+<p>ネットワークファイルシステムはデータベースの破損につながる可能性があるため、Ankiファイルをローカルハードディスクに保存することを強くお勧めします。ネットワークファイルシステムが唯一の選択肢である場合は、破損を検出するためにツール&gt;データベースをチェックを定期的に使用することをお勧めします。</p>
+<h2 id="フラッシュドライブからの実行"><a class="header" href="#フラッシュドライブからの実行">フラッシュドライブからの実行</a></h2>
+<p>Windowsでは、AnkiをUSB/フラッシュドライブにインストールして、ポータブルアプリケーションとして実行できます。次の例では、USBドライブがドライブGであると仮定します。</p>
+<ul>
+<li>
+<p>\Program Files\Ankiフォルダをフラッシュドライブにコピーして、G:\Ankiのようなフォルダを作成します。</p>
+</li>
+<li>
+<p>次のテキストを含むG:\anki.batというテキストファイルを作成します：</p>
+<p>g:\anki\anki.exe -b g:\ankidata</p>
+</li>
+</ul>
+<p>黒いコマンドプロンプトウィンドウが開いたままになるのを防ぎたい場合は、代わりに次を使用できます：</p>
+<pre><code>start /b g:\anki\anki.exe -b g:\ankidata
+</code></pre>
+<ul>
+<li>anki.batをダブルクリックすると、ユーザーデータがG:\ankidataに保存された状態でAnkiが起動するはずです。</li>
+</ul>
+<p>ドライブレターを含む完全なパスが必要です - <code>\anki\anki.exe</code>を使用しようとすると、同期が動作しなくなります。</p>
+<p>フラッシュドライブがFAT32としてフォーマットされている場合、AnkiWebとのメディア同期が機能しない場合があります。メディアが正しく同期されるように、ドライブをNTFSとしてフォーマットしてください。</p>
+<h2 id="バックアップ"><a class="header" href="#バックアップ">バックアップ</a></h2>
+<p><a href="./backups.html">このセクション</a>を参照してください。</p>
+<h2 id="アクセスできないハードディスク"><a class="header" href="#アクセスできないハードディスク">アクセスできないハードディスク</a></h2>
+<p>Ankiが<a href="#%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%81%AE%E5%A0%B4%E6%89%80">Ankiフォルダ</a>内のファイルに書き込めない場合、起動時にAnkiがハードディスクに書き込めないというメッセージが表示され、Ankiは閉じます。権限の修正方法がわからない場合は、コンピュータに詳しい近くの人に連絡して助けてもらってください。</p>
+<h2 id="tempフォルダの権限"><a class="header" href="#tempフォルダの権限">Tempフォルダの権限</a></h2>
+<p>Ankiは一時データを保存するためにシステムの一時フォルダを使用します。このフォルダの権限が不正なアプリやバグのあるアンチウイルスアプリによってデフォルト設定から変更されている場合、Ankiは正しく機能しません。</p>
+<p>Windows 7マシンを使用している場合、問題を修正するための一般的な手順を以下に示します。これはやや複雑なので、よくわからない場合はWindowsに詳しい人に尋ねてください。</p>
+<ol>
+<li>
+<p>スタートバーをクリックし、%temp%（パーセントを含む）と入力して、<kbd>Enter</kbd>を押します。</p>
+</li>
+<li>
+<p>1つ上のフォルダに移動し、tempフォルダを見つけます。右クリックして、プロパティを選択します。</p>
+</li>
+<li>
+<p>セキュリティタブで、詳細設定をクリックします。</p>
+</li>
+<li>
+<p>所有者タブをクリックします。所有者としてリストされていない場合は、所有権を取得するボタンをクリックします。</p>
+</li>
+<li>
+<p>アクセス許可タブで、フルコントロールがあることを確認します。デフォルトのW7インストールでは、コントロールは実際にc:\users\your-usernameから継承されます。</p>
+</li>
+</ol>
+<h2 id="破損したコレクション"><a class="header" href="#破損したコレクション">破損したコレクション</a></h2>
+<p>Ankiはプログラムとコンピュータのクラッシュに対して堅牢なファイル形式を使用していますが、Ankiが開いている間にファイルが変更されたり、ネットワークドライブに保存されたり、バグによって破損したりすると、コレクションが破損する可能性があります。</p>
+<p>ツール&gt;データベースをチェックを実行すると、Ankiがファイルの破損を検出した場合にメッセージが表示されます。<strong>これから回復する最良の方法は、最新の<a href="#%E3%83%90%E3%83%83%E3%82%AF%E3%82%A2%E3%83%83%E3%83%97">自動バックアップ</a>から復元することです</strong>が、バックアップが古すぎる場合は、代わりに破損を修復することを試みることができます。</p>
+<p>Linuxでは、sqlite3がインストールされていることを確認してください。Macでは、すでにインストールされているはずです。Windowsでは、<a href="http://www.sqlite.org/sqlite-3_6_23.zip">http://www.sqlite.org/sqlite-3_6_23.zip</a>をダウンロードしてください。</p>
+<p>次に、以下の手順で何か問題が発生した場合に備えて、collection.anki2ファイルのバックアップを作成してください。</p>
+<h3 id="linuxmacos"><a class="header" href="#linuxmacos">Linux/macOS</a></h3>
+<p>ターミナルを開き、コレクションがあるフォルダに移動し、次を入力します：</p>
+<pre><code>sqlite3 collection.anki2 .dump &gt; dump.txt
+</code></pre>
+<p>結果のdump.txtファイルをテキストエディタで開き、最終行を見てください。“rollback;“と書かれている場合は、“commit;“に変更してください。</p>
+<p>次に、ターミナルで以下を実行します：</p>
+<pre><code>cat dump.txt | sqlite3 temp.file
+</code></pre>
+<p>temp.fileを使用していることを確認してください - 右側にcollection.anki2を置かないでください。そうするとファイルが空白になります。完了したら、最終ステップに進んでください。</p>
+<h3 id="windows"><a class="header" href="#windows">Windows</a></h3>
+<p><code>sqlite3.exe</code>プログラムとデッキをデスクトップにコピーします。次に<strong>スタート&gt;ファイル名を指定して実行</strong>に移動し、<code>cmd.exe</code>と入力します。</p>
+<p>最近のWindowsでは、コマンドプロンプトがデスクトップで起動しない場合があります。コマンドプロンプトにデスクトップが表示されない場合は、次のように入力し、“administrator“をログイン名に置き換えてください。</p>
+<pre><code>cd C:\Users\Administrator\Desktop
+</code></pre>
+<p>次に入力します：</p>
+<pre><code>sqlite3 collection.anki2 .dump &gt; dump.txt
+</code></pre>
+<p>結果のdump.txtファイルをテキストエディタで開き、最終行を見てください。“rollback;“と書かれている場合は、“commit;“に変更してください。</p>
+<p>次に、ターミナルで以下を実行します：</p>
+<pre><code>type dump.txt | sqlite3 temp.file
+</code></pre>
+<p>temp.fileを使用していることを確認してください - 右側にcollection.anki2を置かないでください。そうするとファイルが空白になります。完了したら、最終ステップに進んでください。</p>
+<h3 id="最終ステップ"><a class="header" href="#最終ステップ">最終ステップ</a></h3>
+<p>エラーメッセージが表示されず、temp.fileが空でないことを確認してください。この手順ではコレクションが最適化されるため、新しいファイルが古いファイルよりもやや小さくなるのは正常です。</p>
+<p>ファイルが空でないことを確認したら：</p>
+<ul>
+<li>
+<p>元のcollection.anki2ファイルの名前を別のものに変更します</p>
+</li>
+<li>
+<p>temp.fileをcollection.anki2に名前変更します</p>
+</li>
+<li>
+<p>collection.anki2をコレクションフォルダに戻し、古いバージョンを上書きします</p>
+</li>
+<li>
+<p>Ankiを起動し、ツール&gt;データベースをチェックに移動して、コレクションが正常に復元されたことを確認します。</p>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="backups.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="stats.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="backups.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="stats.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>フィルターデッキ - Ankiマニュアル</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Ankiのユーザーマニュアル。Ankiは学習を容易にするフラッシュカードプログラムです。">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="css/misc.css">
+        <link rel="stylesheet" href="css/mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Ankiマニュアル</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/ankitects/anki-manual/" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="フィルターデッキと詰め込み学習"><a class="header" href="#フィルターデッキと詰め込み学習">フィルターデッキと詰め込み学習</a></h1>
+<ul>
+<li><a href="#%E3%82%AB%E3%82%B9%E3%82%BF%E3%83%A0%E5%AD%A6%E7%BF%92">カスタム学習</a></li>
+<li><a href="#%E3%83%9B%E3%83%BC%E3%83%A0%E3%83%87%E3%83%83%E3%82%AD">ホームデッキ</a></li>
+<li><a href="#%E6%89%8B%E5%8B%95%E3%81%A7%E4%BD%9C%E6%88%90">手動で作成</a></li>
+<li><a href="#%E9%A0%86%E5%BA%8F">順序</a></li>
+<li><a href="#%E3%82%B9%E3%83%86%E3%83%83%E3%83%97%E3%81%A8%E6%88%BB%E3%82%8A">ステップと戻り</a></li>
+<li><a href="#%E6%9C%9F%E9%99%90%E3%81%AE%E5%BE%A9%E7%BF%92">期限の復習</a></li>
+<li><a href="#%E5%85%88%E8%A1%8C%E5%BE%A9%E7%BF%92">先行復習</a></li>
+<li><a href="#%E5%86%8D%E3%82%B9%E3%82%B1%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB">再スケジュール</a></li>
+<li><a href="#%E8%BF%BD%E3%81%84%E3%81%A4%E3%81%8F">追いつく</a></li>
+</ul>
+<p>Ankiで通常のデッキを学習するとき、限られた数のカードのみが表示されます：Ankiがあなたが忘れそうだと判断したカードと、新しいカードの1日の上限です。これは一般的に有用で、必要以上に学習に時間を費やさないことを保証します。しかし、テストのための復習、特定の教材への集中など、これらの通常の制限を超えて学習することが有用な場合があります。これを可能にするため、Ankiは「フィルターデッキ」と呼ばれる異なるタイプのデッキを提供しています。</p>
+<p>フィルターデッキは多くの可能性を提供します。カードのプレビュー、テスト前の詰め込み学習、特定のタグの学習、特定の並び順でのバックログの解消、予定より早い復習、その日の失敗したカードの復習などに使用できます。</p>
+<h2 id="カスタム学習"><a class="header" href="#カスタム学習">カスタム学習</a></h2>
+<p>フィルターデッキを作成する最も簡単な方法は、デッキをクリックしたときに画面下部に表示されるカスタム学習ボタンを使用することです。その日に失敗したカードを復習するなど、一般的なタスクのための便利なプリセットフィルターを提供します。「カスタム学習セッション」というフィルターデッキを作成し、自動的に開きます。</p>
+<p>既存の「カスタム学習セッション」デッキが存在する場合、新しいものが作成される前に空になります。カスタム学習デッキを保持したい場合は、デッキリストから名前を変更できます。</p>
+<p>各オプションの概要は次のとおりです：</p>
+<p><strong>今日の新しいカードの上限を増やす</strong><br />
+現在学習しているデッキに新しいカードを追加します。他のオプションとは異なり、これは新しいフィルターデッキを作成「しません」。既存のデッキを変更します。</p>
+<p><strong>今日の復習カードの上限を増やす</strong><br />
+1日の復習上限のために今日期限のすべての復習が表示されなかった場合、このオプションでより多くを表示できます。新しいカードのオプションと同様に、これは既存のデッキを変更します。</p>
+<p><strong>忘れたカードを復習</strong><br />
+指定した日数内に「もう一度」（1）と答えたすべてのカードを表示します。</p>
+<p><strong>先行復習</strong><br />
+近い将来（指定した日数）に期限となるカードを表示します。これは休暇前に古いカードの一部を処理するのに便利ですが、最近学習したカードには役立ちません。詳細については、下記の<a href="#%E5%85%88%E8%A1%8C%E5%BE%A9%E7%BF%92">先行復習</a>セクションを参照してください。</p>
+<p><strong>新しいカードをプレビュー</strong><br />
+最近追加したカードを、答えた後も復習カードに変換せずに表示します。</p>
+<p><strong>カードの状態またはタグで学習</strong><br />
+現在のデッキから特定の数のカードを選択して学習します。新しいカードのみ、期限のカードのみ、またはすべてのカードを選択できます。「タグを選択」をクリックした後、タグで選択したカードを制限することもできます。デッキ内のすべてのカードを見たい場合（例えば、大きなテストの前に学習する場合）、カードの数をデッキ内のカード数より多く設定できます。</p>
+<h2 id="ホームデッキ"><a class="header" href="#ホームデッキ">ホームデッキ</a></h2>
+<p>カードがフィルターデッキに移動されると、元のデッキへのリンクが保持されます。その以前のデッキは、カードの「ホームデッキ」と呼ばれます。</p>
+<p>カードはフィルターデッキで学習された後、自動的にホームデッキに戻ります。これは設定に応じて、1回の復習後または複数回の復習後になります。</p>
+<p>すべてのカードを一度にホームデッキに戻すことも可能です：</p>
+<ul>
+<li>
+<p>学習概要の「空にする」ボタンは、フィルターデッキ内のすべてのカードをホームデッキに戻しますが、空のフィルターデッキは削除しません。後で再度（再構築ボタンを使用して）満たしたい場合に便利です。</p>
+</li>
+<li>
+<p>フィルターデッキを削除すると、「空にする」と同じことを行いますが、空になったデッキをデッキリストから削除します。フィルターデッキを削除してもカードは削除されません。</p>
+</li>
+</ul>
+<h2 id="手動で作成"><a class="header" href="#手動で作成">手動で作成</a></h2>
+<p>上級ユーザーは、プリセットフィルターに頼る代わりに、任意の検索文字列（または「フィルター」）でフィルターデッキを作成できます。フィルターデッキを手動で作成するには、ツールメニューから「フィルターデッキを作成」を選択します。</p>
+<p>構築ボタンをクリックすると、Ankiは指定した設定に一致するカードを見つけ、既存のデッキから新しいフィルターデッキに一時的に移動して学習します。</p>
+<p>同じフィルターオプションを使用して再度カードを取得したい場合（例えば、特定のタグを持つすべてのカードを毎日学習したい場合）、デッキの概要画面の下部にある再構築ボタンを使用できます。</p>
+<p><strong>検索</strong>エリアは、Ankiが収集するカードを制御します。ブラウザで可能なすべての検索は、フィルターデッキでも可能です。タグへの制限、特定の回数忘れたカードの検索などです。さまざまな可能性についての詳細は、マニュアルの<a href="searching.html">検索</a>セクションを参照してください。</p>
+<p>フィルターデッキは、保留中、延期中、またはすでに別のフィルターデッキにあるカードを取り込むことはできません。このため、ブラウザでの検索で表示されたカードがフィルターデッキに含まれない場合があります。</p>
+<p><strong>制限</strong>オプションは、デッキに収集されるカードの数を制御します。選択した順序は、カードが収集される順序と復習される順序の両方を制御します。例えば「最も忘却」を選択し、制限を20にすると、Ankiは最も忘却した20枚のカードのみを表示します。</p>
+<p><strong>2番目のフィルターを有効にする</strong>オプションでは、2つの異なる検索で構成されるフィルターデッキを作成できます。例えば、ある順序で期限のカードを含め、別の順序で少数の新しいカードを含めることができます。</p>
+<h2 id="順序"><a class="header" href="#順序">順序</a></h2>
+<p>「カードの選択基準」オプションは、カードが表示される順序を制御します。選択する最大カード数がフィルター基準に一致するカード数より少ない場合、Ankiはこのソート済みリストの最後のカードを最初に除外します。</p>
+<p><strong>最も古く見たものから</strong><br />
+復習で最も長い間見ていないカードを最初に表示します。</p>
+<p><strong>ランダム</strong><br />
+フィルター基準に一致するすべてのカードの順序をランダム化します（設定された順序を使用しません）。</p>
+<p><strong>間隔の昇順</strong><br />
+最も小さい間隔を持つカードを最初に表示します。</p>
+<p><strong>間隔の降順</strong><br />
+最も大きい間隔を持つカードを最初に表示します。</p>
+<p><strong>最も忘却</strong><br />
+最も多く失敗したカードを最初に表示します。</p>
+<p><strong>追加順</strong><br />
+最初に追加したカードを表示します（つまり、最も早い作成日を持つカード）。</p>
+<p><strong>期日順</strong><br />
+最も早い期日を持つカードを最初に表示します。</p>
+<p><strong>最新追加順</strong><br />
+最も最近デッキに追加したカードを最初に表示します。
+（これは「追加順」の反対です。）</p>
+<p><strong>相対的な期限超過</strong><br />
+忘れている可能性が最も高いカードを最初に表示します。これは、処理に時間がかかる可能性のある大きなバックログがある場合に便利で、より多くのカードを忘れる可能性を減らしたい場合に有用です。</p>
+<p>SM-2アルゴリズムを使用している場合、期限超過はカードがどれだけ期限を過ぎているか、および間隔がどれだけ長いかを比較して決定されます。例えば、現在の間隔が5日で2日期限を過ぎているカードは、現在の間隔が10日で3日期限を過ぎているカードより先に表示されます。</p>
+<p>FSRSを使用している場合、期限超過は各カードの検索可能性とデッキプリセットの望ましい保持率に基づいて計算されます。</p>
+<h2 id="ステップと戻り"><a class="header" href="#ステップと戻り">ステップと戻り</a></h2>
+<p>デフォルトでは、Ankiはカードのホームデッキのステップを使用します。新しいカードが通常学習時に2回復習される場合、フィルターデッキで学習するときも同じことが起こります。
+（再）学習ステップの動作については、<a href="deck-options.html#%E5%AD%A6%E7%BF%92%E3%82%B9%E3%83%86%E3%83%83%E3%83%97">デッキオプション</a>セクションを参照してください。</p>
+<p>カードは（再）学習が完了するとホームデッキに戻ります。したがって、3つの学習ステップがある場合、新しいカードは「良い」を3回押すか、「簡単」を1回押すとホームデッキに戻ります。</p>
+<p>再スケジュールが無効になっているフィルターデッキは4つのボタンを表示します。<strong>もう一度</strong>、<strong>難しい</strong>、<strong>良い</strong>ボタンには設定可能な遅延があります。<strong>簡単</strong>ボタンはカードをフィルターデッキから削除します。</p>
+<h2 id="期限の復習"><a class="header" href="#期限の復習">期限の復習</a></h2>
+<p>フィルターデッキに復習期限のカードが含まれている場合、それらは元のデッキで表示されるのと同じように表示されます：画面下部の復習カード数に表示され、どれだけよく覚えていたかについて4つの選択肢があります。正解すると、カードはホームデッキに戻され、次の遅延はホームデッキの設定を使用して調整されます。カードを忘れた場合、ホームデッキで定義された再学習ステップに従って表示されます。</p>
+<h2 id="先行復習"><a class="header" href="#先行復習">先行復習</a></h2>
+<p>検索に期限でないカードが含まれている場合、Ankiは復習を予定より早く表示します。</p>
+<p>Ankiは、どれだけ早く復習しているかを考慮した特別なアルゴリズムをこれらの復習に使用します。カードがほぼ表示される予定だった場合、時間通りに復習した場合に受け取ったであろうものと同様の新しい遅延が与えられます。しかし、カードが予定されてすぐに復習された場合、新しい遅延は以前の遅延と同様になります。この計算はスライディングスケールで機能します。</p>
+<p>カードを予定直後に復習することはスケジューリングにほとんど影響を与えないため（例：1日間隔で明日期限のカードは、早めに復習しても明日期限のままです）、<strong>「先行復習」カスタム学習設定は繰り返し使用には適していません</strong>。旅行前に1週間分のカードを処理するために使用する場合、成熟したカードは将来に再スケジュールされ、新しいカードは小さな間隔のままになります。なぜなら、それらをさらに再スケジュールするのに十分なほどよく知らないからです。翌日再び先行復習すると、結局同じ新しいカードを再度処理することになり、ほとんど利益がありません。</p>
+<h2 id="再スケジュール"><a class="header" href="#再スケジュール">再スケジュール</a></h2>
+<p>デフォルトでは、Ankiはフィルターデッキでのパフォーマンスに基づいて、変更されたスケジューリングでカードをホームデッキに戻します。</p>
+<p>この動作を変更するには、<strong>私の回答に基づいてカードを再スケジュール</strong>をオフにします。これがオフの場合、カードは単純な「プレビューモード」で表示され、元のデッキに戻されるときは、開始時とまったく同じ状態で戻されます。</p>
+<h2 id="追いつく"><a class="header" href="#追いつく">追いつく</a></h2>
+<p>フィルターデッキは、復習に遅れをとったときに追いつくのに便利です。あるAnkiユーザーは、追いつくためにフィルターデッキを使用する方法を次のように説明しています：</p>
+<pre><code>私は800枚のカードのバックログに対してフィルターサブデッキでこれを行いました。
+非常にうまくいきました。
+
+期限内フィルター： "is:due prop:due&gt;-7"
+
+期限超過フィルター： "is:due prop:due&lt;=-7"
+
+期限内デッキには、過去1週間に期限となったカードが含まれます。これは、定期的に
+期限となるカードを取得するため、毎日学習すべきデッキです。これにより、バック
+ログがないかのように学習できます。
+
+期限超過デッキにはバックログ（時間内に学習しなかったカード）が含まれます。
+新しいカードを学習するのと同じ方法で学習できます。それらは通常のカードに戻る
+ため、期限内デッキをチェックし続ける限り、期限超過の数は決して増えません。
+
+どれくらい時間がかかるかは、定期的に期限となるカードに加えて、毎日どれだけの
+期限超過カードを学習するかによります。気が向いたときにまだ高速で処理できます - 
+または新しいカードのように1日あたり特定の数を行うことができます。あなた次第です。</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="browsing.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="searching.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="browsing.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="searching.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

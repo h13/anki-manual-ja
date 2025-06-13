@@ -1,0 +1,386 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>統計 - Ankiマニュアル</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Ankiのユーザーマニュアル。Ankiは学習を容易にするフラッシュカードプログラムです。">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="css/misc.css">
+        <link rel="stylesheet" href="css/mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Ankiマニュアル</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/ankitects/anki-manual/" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="カード情報グラフ統計"><a class="header" href="#カード情報グラフ統計">カード情報、グラフ、統計</a></h1>
+<ul>
+<li><a href="#%E3%82%AB%E3%83%BC%E3%83%89%E6%83%85%E5%A0%B1">カード情報</a></li>
+<li><a href="#%E7%B5%B1%E8%A8%88">統計</a></li>
+<li><a href="#%E3%83%87%E3%83%83%E3%82%AD%E3%82%B3%E3%83%AC%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE%E9%81%B8%E6%8A%9E">デッキ/コレクションの選択</a>
+<ul>
+<li><a href="#%E3%83%87%E3%83%83%E3%82%AD">デッキ</a></li>
+<li><a href="#%E3%82%B3%E3%83%AC%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3">コレクション</a></li>
+<li><a href="#%E5%B1%A5%E6%AD%B4">履歴</a></li>
+<li><a href="#%E3%81%9D%E3%81%AE%E4%BB%96">その他</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BB%8A%E6%97%A5">今日</a>
+<ul>
+<li><a href="#%E3%82%82%E3%81%86%E4%B8%80%E5%BA%A6%E3%81%AE%E5%9B%9E%E6%95%B0">もう一度の回数</a></li>
+<li><a href="#%E5%AD%A6%E7%BF%92%E5%BE%A9%E7%BF%92%E5%86%8D%E5%AD%A6%E7%BF%92%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E3%83%BC">学習、復習、再学習、フィルター</a></li>
+</ul>
+</li>
+<li><a href="#%E3%82%B0%E3%83%A9%E3%83%95">グラフ</a>
+<ul>
+<li><a href="#%E5%B0%86%E6%9D%A5%E3%81%AE%E6%9C%9F%E9%99%90">将来の期限</a></li>
+<li><a href="#%E3%82%AB%E3%83%AC%E3%83%B3%E3%83%80%E3%83%BC">カレンダー</a></li>
+<li><a href="#%E5%BE%A9%E7%BF%92">復習</a></li>
+<li><a href="#%E3%82%AB%E3%83%BC%E3%83%89%E6%95%B0">カード数</a></li>
+<li><a href="#%E5%BE%A9%E7%BF%92%E6%99%82%E9%96%93">復習時間</a></li>
+<li><a href="#%E5%BE%A9%E7%BF%92%E9%96%93%E9%9A%94">復習間隔</a></li>
+<li><a href="#%E3%82%AB%E3%83%BC%E3%83%89%E3%81%AE%E6%98%93%E3%81%97%E3%81%95">カードの易しさ</a></li>
+<li><a href="#%E3%82%AB%E3%83%BC%E3%83%89%E3%81%AE%E5%AE%89%E5%AE%9A%E6%80%A7">カードの安定性</a></li>
+<li><a href="#%E3%82%AB%E3%83%BC%E3%83%89%E3%81%AE%E9%9B%A3%E6%98%93%E5%BA%A6">カードの難易度</a></li>
+<li><a href="#%E3%82%AB%E3%83%BC%E3%83%89%E3%81%AE%E6%A4%9C%E7%B4%A2%E5%8F%AF%E8%83%BD%E6%80%A7">カードの検索可能性</a></li>
+<li><a href="#%E6%99%82%E9%96%93%E5%88%A5%E5%86%85%E8%A8%B3">時間別内訳</a></li>
+<li><a href="#%E8%A7%A3%E7%AD%94%E3%83%9C%E3%82%BF%E3%83%B3">解答ボタン</a></li>
+<li><a href="#%E7%9C%9F%E3%81%AE%E4%BF%9D%E6%8C%81%E7%8E%87%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB">真の保持率テーブル</a></li>
+</ul>
+</li>
+<li><a href="#%E6%89%8B%E5%8B%95%E5%88%86%E6%9E%90">手動分析</a></li>
+</ul>
+<h2 id="カード情報"><a class="header" href="#カード情報">カード情報</a></h2>
+<p>カード&gt;情報メニューアイテムを使用するか、カードを右クリックして<strong>情報</strong>を選択するか、学習画面で<kbd>I</kbd>を押すことで、カードに関する情報を表示できます。</p>
+<p><img src="media/card_info.png" alt="カード情報" /></p>
+<p>いくつかの注記：</p>
+<p><strong>位置</strong><br />
+他の新しいカードに対する相対的なカードの表示順を示します。位置はブラウザで変更できます。カードが学習されると、カードが手動で再び新しいカードにリセットされない限り、位置は使用されません。</p>
+<p><strong>間隔</strong><br />
+1つの復習から次の復習までの遅延。時間は短縮されています。「0s、1m、3h、4d、5mo、6y」は、それぞれ秒、分、時間、日、月、年を指します。</p>
+<p><strong>易しさ</strong><br />
+復習カードに「良い」ボタンで答えたときに間隔が成長するおおよその量。</p>
+<p>下部セクションは、カードの復習履歴を示します。評価はボタンを示します（1 = もう一度、4 = 簡単）。「リセット」または「期日を設定」アクションを使用してカードを手動で再スケジュールすると、タイプは手動としてリストされ、評価は0になります。</p>
+<h2 id="統計"><a class="header" href="#統計">統計</a></h2>
+<p>統計ウィンドウは、メインウィンドウの上部にある<strong>統計</strong>ボタンをクリックするか、<kbd>T</kbd>を押すことでアクセスできます。</p>
+<p><img src="media/Statistics.png" alt="統計画面" /></p>
+<h2 id="デッキコレクションの選択"><a class="header" href="#デッキコレクションの選択">デッキ/コレクションの選択</a></h2>
+<h3 id="デッキ"><a class="header" href="#デッキ">デッキ</a></h3>
+<p>デフォルトでは、統計ウィンドウは現在選択されているデッキとそれに含まれるサブデッキの統計を表示しますが、画面上部のテキストボックスに名前を入力するか（Anki 2.1.61以降）、下部のデッキセレクターを使用して、コレクションから任意のデッキを選択できます。</p>
+<h3 id="コレクション"><a class="header" href="#コレクション">コレクション</a></h3>
+<p>このチェックボックスを選択すると、コレクション全体の統計が表示されます。上部の検索ボックスにフィルターを追加することで、任意の検索のグラフを表示することもできます（2.1.28以降）。</p>
+<h3 id="履歴"><a class="header" href="#履歴">履歴</a></h3>
+<p>デフォルトでは、Ankiは過去12か月の統計を表示します。
+上部で、これをすべての履歴範囲またはデッキ寿命範囲に変更できます。（上部の「今日」セクションは、もちろんこの選択の影響を受けません。）</p>
+<h3 id="その他"><a class="header" href="#その他">その他</a></h3>
+<ul>
+<li>
+<p>下部の「PDFを保存」をクリックすると、統計のPDFドキュメントがデスクトップ上のファイルに保存され、他の人と統計を共有しやすくなります。</p>
+</li>
+<li>
+<p>ノートを削除しても、その復習履歴はAnkiに保持されます。特定のデッキの統計を見るときには含まれません（Ankiは削除されたカードがどのデッキに属していたかを知る方法がないため）が、コレクション全体の統計を見るときには含まれます。</p>
+</li>
+<li>
+<p>Anki 2.1.28以降では、再設計されたグラフが導入されました。古いグラフは、統計ボタンを<kbd>Shift</kbd>クリックすることでまだアクセスできます。</p>
+</li>
+</ul>
+<h2 id="今日"><a class="header" href="#今日">今日</a></h2>
+<p>統計ウィンドウの上部には、今日完了した復習に関する簡単なテキスト統計のリストがあります。この文脈での「復習」は「カードの1回の回答」であるため、カードを複数回見る必要がある場合は複数の復習としてカウントされ、学習カードの回答も「復習」としてカウントされます。意味がすぐに明らかではない可能性があるいくつかの統計：</p>
+<h3 id="もう一度の回数"><a class="header" href="#もう一度の回数">もう一度の回数</a></h3>
+<p>これは失敗した復習の数です（つまり、もう一度を押した）。その後にリストされる正解率は、失敗「しなかった」カードの数を学習したカードの総数で割ったものです。</p>
+<h3 id="学習復習再学習フィルター"><a class="header" href="#学習復習再学習フィルター">学習、復習、再学習、フィルター</a></h3>
+<p>学習カード、復習カード、再学習カード、または期限でないときにフィルターデッキで学習されたカードの復習数。</p>
+<p>現在の日の統計は、学習の進歩の良い全体的な指標ではありません。誰もが悪い日と良い日があり、特定の日に正解率が低くなったことは心配の原因ではありません。より長い期間を考慮に入れる残りの統計は、パフォーマンスに基づいて学習習慣やスケジュール設定を変更しようとする場合に、より有用な情報を提供します。</p>
+<p>「今日」の統計は、ウィンドウの下部で選択された期間の影響を受けません。</p>
+<h2 id="グラフ"><a class="header" href="#グラフ">グラフ</a></h2>
+<h3 id="将来の期限"><a class="header" href="#将来の期限">将来の期限</a></h3>
+<p>このグラフは、新しいカードを学習せず、カードを失敗しない場合に、将来の特定の日に期限となる推定復習数を示します。バーと左軸は、毎日すべてのカードを学習する場合の各日の期限カード数を示し、灰色の陰影領域と右軸は、それまでまったく学習しない場合のその日の期限カード数を示します。予測グラフは現在期限超過の復習をカウントしないため、大きなバックログがある場合、期限超過のカードは表示されません。</p>
+<p>日次負荷は、毎日復習されるカードの平均数の推定値です。
+バックログがない場合、日次負荷は期限カードの数とほぼ等しくなるはずです。</p>
+<p>次のように計算されます：</p>
+<p>$$
+\frac{1}{I_1} + \frac{1}{I_2} + \frac{1}{I_3} + \dots + \frac{1}{I_n}
+$$</p>
+<p>ここで、\(I_n\)はn番目のカードの間隔です。間隔が1日未満の場合、合計項は1です。これにより、短い間隔のカードが日次負荷の値を非現実的に歪めるのを防ぎます。</p>
+<p>例：間隔が10日のカードと間隔が50日のカードがあります。
+日次負荷 = \(\frac{1}{10} + \frac{1}{50} = 0.12\)、つまり_平均して_1日あたり0.12枚の期限カードがあります。</p>
+<h3 id="カレンダー"><a class="header" href="#カレンダー">カレンダー</a></h3>
+<p>このグラフは、過去のカード復習活動を示します。特定のアイテムにマウスを合わせると、その日に行われた改訂の数を表示できます。曜日をクリックして、それを開始日にします。</p>
+<h3 id="復習"><a class="header" href="#復習">復習</a></h3>
+<p>このグラフは、実行したカード復習の数をカウントします。バーは、画面下部で選択した期間に応じて、日、週、または月に対応する場合があります。異なる色のブロックは、各日に答えたカードのうち何枚が<a href="getting-started.html#%E3%82%AB%E3%83%BC%E3%83%89%E3%81%AE%E7%8A%B6%E6%85%8B">成熟</a>、若い、再学習、または学習カードだったかを示します。期限でないときにフィルター/詰め込みデッキで答えられたカード用の別のグループもあります。灰色の陰影領域と右軸は、グラフ全体で時間が進むにつれて各タイプの復習の累積合計を示します（0日では、グラフに表示される全期間の数が表示されます）。</p>
+<h3 id="カード数"><a class="header" href="#カード数">カード数</a></h3>
+<p>この円グラフは、デッキまたはコレクションの何パーセントが成熟、未見、若い/学習、および保留カードで構成されているかを示します。より正確なパーセンテージを計算したい場合、キーは各セクションの正確なカード数を示し、カードの総数が横に表示されます。</p>
+<h3 id="復習時間"><a class="header" href="#復習時間">復習時間</a></h3>
+<p>このグラフは復習回数とまったく同じように機能しますが、答えたカードの数ではなく、各カードに費やした時間を扱います。</p>
+<h3 id="復習間隔"><a class="header" href="#復習間隔">復習間隔</a></h3>
+<p>このグラフは、特定の間隔（2つの復習間の遅延）を持つカードの数を表示します。灰色の陰影領域と右軸は、その時点以下の間隔を持つカードの割合を示します。時間範囲は、他のグラフとは異なる効果をこのグラフに与えます：どのカードまたは学習期間が含まれるかを変更するのではなく、間隔がどこまで表示されるかを制限します（たとえば、14か月の間隔は1年のグラフにはまったく表示されません）。</p>
+<h3 id="カードの易しさ"><a class="header" href="#カードの易しさ">カードの易しさ</a></h3>
+<p>このグラフは、特定の易しさ係数を持つカードの数を示します。
+選択したデッキ/コレクションの平均易しさもここに表示されます。</p>
+<h3 id="カードの安定性"><a class="header" href="#カードの安定性">カードの安定性</a></h3>
+<p>FSRSが有効な場合のみ表示されます。安定性は、想起の確率が100％から90％に減少するのに必要な時間の量として定義されます。</p>
+<h3 id="カードの難易度"><a class="header" href="#カードの難易度">カードの難易度</a></h3>
+<p>FSRSが有効な場合のみ表示されます。難易度は、各復習後にカードの間隔がどれだけ速く成長するかを決定します。</p>
+<h3 id="カードの検索可能性"><a class="header" href="#カードの検索可能性">カードの検索可能性</a></h3>
+<p>FSRSが有効な場合のみ表示されます。「検索可能性」は「想起の確率」と同義です。</p>
+<p>推定総知識は、現在覚えている可能性が高いカードの総数で、平均検索可能性に少なくとも1回復習されたカードの数を掛けて計算されます。</p>
+<h3 id="時間別内訳"><a class="header" href="#時間別内訳">時間別内訳</a></h3>
+<p>このグラフは、特定の時間に合格した総復習の割合を示します。</p>
+<ol>
+<li>x軸（下）：時刻（特定の時間）。</li>
+<li>y軸（右）：学習したカードの量。</li>
+<li>副y軸（左）：成功率（パーセント）。</li>
+</ol>
+<p>青いバーは、その時間に行った復習の数を示します（結果がどれほど重要かがわかるように）。灰色の陰影領域は、その時間に合格した（つまり、_もう一度_を押さなかった）総復習の割合を示します。</p>
+<h3 id="解答ボタン"><a class="header" href="#解答ボタン">解答ボタン</a></h3>
+<p>このグラフは、学習/新規、若い、<a href="getting-started.html#%E3%82%AB%E3%83%BC%E3%83%89%E3%81%AE%E7%8A%B6%E6%85%8B">成熟</a>カードを学習している間に、もう一度、難しい、良い、または簡単ボタンを何回選択したかを示します。Ankiは、各タイプのカードの正解復習の割合も表示します。</p>
+<h3 id="真の保持率テーブル"><a class="header" href="#真の保持率テーブル">真の保持率テーブル</a></h3>
+<p>このテーブルは、異なるカードと異なる時間枠での保持率を示します。
+カードは、間隔が21日以上の場合「成熟」と定義されます。1日に1回の復習（最初のもの）のみがカウントされます。
+もう一度は「失敗」としてカウントされ、難しい、良い、簡単は「合格」としてカウントされます。
+このテーブルは、<a href="https://faqs.ankiweb.net/what-spaced-repetition-algorithm.html">Ankiの間隔反復アルゴリズム</a>がどれだけうまく機能しているかを確認するために使用できます。</p>
+<p>FSRSを使用している場合、真の保持率は<a href="deck-options.html#%E6%9C%9B%E3%81%BE%E3%81%97%E3%81%84%E4%BF%9D%E6%8C%81%E7%8E%87">望ましい保持率</a>に近いことが期待されます。
+1日のデータはノイズが多いため、月次データを見る方が良いことに留意してください。真の保持率が望ましい保持率とうまく一致しない場合、一般的な推奨事項は次のとおりです：</p>
+<ol>
+<li>FSRSパラメータを最適化する。</li>
+<li>異なる素材に対して独自のパラメータを持つ異なるプリセットを使用する。</li>
+<li><a href="leeches.html">リーチ</a>を保留/再定式化する。</li>
+<li><a href="studying.html#%E8%A7%A3%E7%AD%94%E3%83%9C%E3%82%BF%E3%83%B3">意図したとおりに解答ボタンを使用している</a>ことを確認する。</li>
+</ol>
+<h2 id="手動分析"><a class="header" href="#手動分析">手動分析</a></h2>
+<p>Ankiが提供するもの以外の統計から情報を取得することに興味がある場合は、データに直接アクセスすることが可能です。
+関連する複雑さのため、これは私たちがサポートを提供できるものではありません。</p>
+<p>1つのオプションは、統計ウィンドウに別のグラフまたは詳細を追加する<a href="addons.html">アドオンを作成する</a>ことです。AnkiWebにはすでにこの種のアドオンがいくつかあり、それがどのように機能するかのアイデアを得るために見ることができます。</p>
+<p>より強力でより複雑なオプションは、Ankiのデータベースから復習ログ情報を直接抽出し、外部プログラムで分析することです。AnkiはSQLiteと呼ばれるデータベース形式を使用しています。SQLiteデータベースを操作するための多くのツールが利用可能です。最も簡単に始められるものの1つは<a href="http://sqlitebrowser.org/">SQLite Browser</a>と呼ばれ、データベースを見回したり、別のプログラムにインポートするためのテーブルのCSVバージョンをエクスポートしたりできます。</p>
+<p>統計にとって最も重要なテーブルは「revlog」テーブルで、実行した各復習のエントリを保存します。列は次のとおりです：</p>
+<p><strong>id</strong><br />
+復習が実施された時刻。1970年1月1日の午前0時UTCから経過したミリ秒数として。
+（これは、ミリ秒ではなく秒単位の場合、「Unix エポック時間」として知られることがあります。）</p>
+<p><strong>cid</strong><br />
+復習されたカードのID。この値を「cards」テーブルのidフィールドで検索して、カードに関する詳細情報を取得できますが、revlogエントリが記録されたときと検索しているときの間でカードが変更されている可能性があることに注意してください。これは、カードの作成時刻のミリ秒タイムスタンプでもあります。</p>
+<p><strong>usn</strong><br />
+この列は、復習の同期状態を追跡するために使用され、分析に有用な情報を提供しません。</p>
+<p><strong>ease</strong><br />
+復習の最後に押したボタン（1はもう一度、4は簡単）。</p>
+<p><strong>ivl</strong><br />
+復習後にカードがプッシュされた新しい間隔。正の値は日単位です。負の値は秒単位です（学習カードの場合）。</p>
+<p><strong>lastIvl</strong><br />
+復習前のカードの間隔。初めて導入されたカードは、もう一度の遅延に等しい最後の間隔を持ちます。</p>
+<p><strong>factor</strong><br />
+カードの新しい易しさ係数（パーミル（千分率））。易しさ係数が2500の場合、次に良いを押すとカードの間隔は2.5倍になります。</p>
+<p><strong>time</strong><br />
+易しさボタンを選択する前に、カードの質問側と解答側に費やした時間（ミリ秒単位）。</p>
+<p><strong>type</strong><br />
+これは学習カードの場合は0、復習カードの場合は1、再学習カードの場合は2、早期の「詰め込み」カード（期限でないときにフィルターデッキで学習されているカード）の場合は3です。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="files.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="media.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="files.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="media.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

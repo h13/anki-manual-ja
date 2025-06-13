@@ -1,0 +1,350 @@
+<!DOCTYPE HTML>
+<html lang="ja" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>テキストファイル - Ankiマニュアル</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Ankiのユーザーマニュアル。Ankiは学習を容易にするフラッシュカードプログラムです。">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../css/misc.css">
+        <link rel="stylesheet" href="../css/mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Ankiマニュアル</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/ankitects/anki-manual/" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="テキストファイル"><a class="header" href="#テキストファイル">テキストファイル</a></h1>
+<ul>
+<li><a href="#%E3%82%B9%E3%83%97%E3%83%AC%E3%83%83%E3%83%89%E3%82%B7%E3%83%BC%E3%83%88%E3%81%A8utf-8">スプレッドシートとUTF-8</a></li>
+<li><a href="#html">HTML</a></li>
+<li><a href="#%E3%83%A1%E3%83%87%E3%82%A3%E3%82%A2%E3%81%AE%E3%82%A4%E3%83%B3%E3%83%9D%E3%83%BC%E3%83%88">メディアのインポート</a></li>
+<li><a href="#%E5%A4%A7%E9%87%8F%E3%83%A1%E3%83%87%E3%82%A3%E3%82%A2">大量メディア</a></li>
+<li><a href="#%E9%87%8D%E8%A4%87%E3%81%A8%E6%9B%B4%E6%96%B0">重複と更新</a></li>
+<li><a href="#%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%83%98%E3%83%83%E3%83%80%E3%83%BC">ファイルヘッダー</a>
+<ul>
+<li><a href="#%E3%83%8E%E3%83%BC%E3%83%88%E3%82%BF%E3%82%A4%E3%83%97%E5%88%97">ノートタイプ列</a></li>
+<li><a href="#%E3%83%87%E3%83%83%E3%82%AD%E5%88%97">デッキ列</a></li>
+<li><a href="#guid%E5%88%97">GUID列</a></li>
+</ul>
+</li>
+</ul>
+<p>コンマ、セミコロン、またはタブで区切られたフィールドを含む<strong>プレーンテキスト</strong>ファイルは、いくつかの条件が満たされていれば、Ankiにインポートできます。</p>
+<ul>
+<li>
+<p>ファイルはプレーンテキスト（myfile.txt）である必要があります。myfile.xls、myfile.rtf、myfile.docなどの他の形式は、最初にプレーンテキストファイルとして保存する必要があります。</p>
+</li>
+<li>
+<p>ファイルはUTF-8形式である必要があります（以下を参照）。</p>
+</li>
+<li>
+<p>Ankiは、最初の（コメントでない）行を見て、ファイル内のフィールド数を決定します。ファイルの後のレコードの一部がより少ないフィールドを含む場合、Ankiは欠落しているフィールドを空白であるかのように扱います。レコードの一部に余分なフィールドが含まれている場合、余分な内容はインポートされません。</p>
+</li>
+<li>
+<p>Ankiは、ファイルが使用するフィールド区切り文字（コンマ、タブなど）を推測しようとします。
+間違って推測した場合は、インポートオプションウィンドウで変更して結果をプレビューできます。または、<a href="#%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%83%98%E3%83%83%E3%83%80%E3%83%BC">ファイルヘッダー</a>を追加して特定のフィールド区切り文字を強制できます。</p>
+</li>
+</ul>
+<p>テキストファイルのフィールドは、タグフィールドを含むノートの任意のフィールドにマッピングできます。インポート時に、テキストファイルのどのフィールドがノートのどのフィールドに対応するかを選択できます。</p>
+<p>テキストファイルをインポートするとき、カードを入れるデッキを選択できます。1つ以上のテンプレートにデッキオーバーライドオプションが設定されている場合、カードは選択したデッキではなくそのデッキに移動することに注意してください。</p>
+<p>これは3つのフィールドを持つ有効なファイルの例です：</p>
+<pre><code>apple;banana;grape
+first field;second field;third field
+</code></pre>
+<p>フィールドに改行またはフィールド区切り文字を含める方法は2つあります。</p>
+<p><strong>フィールドの内容を引用符で囲んで文字をエスケープする</strong>：</p>
+<pre><code>hello;"this is
+a two line answer"
+two;this is a one line field
+"this includes a ; (semicolon)";another field
+</code></pre>
+<p>引用符はフィールドの開始と終了を示すために使用されるため、フィールド内に含めたい場合は、通常の処理から「エスケープ」するために、単一の二重引用符を2つの二重引用符に置き換える必要があります：</p>
+<pre><code>field one;"field two with ""escaped quotes"" inside it"
+</code></pre>
+<p>Libreofficeなどのスプレッドシートプログラムを使用してCSVファイルを作成すると、二重引用符のエスケープが自動的に処理されます。</p>
+<p><strong>HTML改行を使用する</strong>：</p>
+<pre><code>hello; this is&lt;br&gt;a two line answer
+two; this is a one line one
+</code></pre>
+<p>HTML改行が機能するには、インポートダイアログで<strong>フィールドにHTMLを許可</strong>をオンにする必要があります。</p>
+<p>複数行にまたがるクローズ削除を使用している場合、エスケープされた複数行は正しく機能しません。この場合は、代わりにHTML改行を使用してください。</p>
+<p>別のフィールドにタグを含めて、インポートダイアログでタグフィールドとして選択することもできます：</p>
+<pre><code>first field;second field;tags
+</code></pre>
+<p>これは、最初の行が無視される（#）有効なファイルの例です：</p>
+<pre><code># this is a comment and is ignored
+foo bar;bar baz;baz quux
+field1;field2;field3
+</code></pre>
+<h2 id="スプレッドシートとutf-8"><a class="header" href="#スプレッドシートとutf-8">スプレッドシートとUTF-8</a></h2>
+<p>ファイルに非ラテン文字（アクセント、日本語など）が含まれている場合、Ankiはファイルが「UTF-8エンコーディング」で保存されることを期待します。これを行う最も簡単な方法は、Excelの代わりに無料のLibreOfficeスプレッドシートプログラムを使用してファイルを編集することです。LibreOfficeはUTF-8を簡単にサポートし、Excelとは異なり、複数行のコンテンツも適切にエクスポートします。Excelを使い続けたい場合は、詳細について<a href="https://docs.google.com/document/d/12YE_FS6A9ANLTESJNtPP116ti4nNmCBghyoJBRtno_k/edit?usp=sharing">このドキュメント</a>を参照してください。</p>
+<p>LibreOfficeでスプレッドシートをAnkiが読み取れるファイルに保存するには、<strong>ファイル &gt; 名前を付けて保存</strong>に移動し、ファイルの種類としてCSVを選択します。デフォルトのオプションを受け入れた後、LibreOfficeはファイルを保存し、保存したファイルをAnkiにインポートできます。</p>
+<h2 id="html"><a class="header" href="#html">HTML</a></h2>
+<p>Ankiは、テキストファイルからインポートされたテキストをHTML（ウェブページに使用される言語）として扱うことができます。これは、太字、斜体、その他のフォーマットを持つテキストをテキストファイルにエクスポートして、再度インポートできることを意味します。HTMLフォーマットを含めたい場合は、インポート時に「フィールドにHTMLを許可」チェックボックスをチェックできます。コンテンツに山括弧やその他のHTML構文が含まれているカードをインポートしようとしている場合は、これをオフにすることをお勧めします。</p>
+<p>ファイルのフォーマットにHTMLを使用したいが、山括弧やアンパサンドも含めたい場合は、次の置換を使用できます：</p>
+<div class="table-wrapper"><table><thead><tr><th>文字</th><th>置換</th></tr></thead><tbody>
+<tr><td>&lt;</td><td><code>&amp;lt;</code></td></tr>
+<tr><td>&gt;</td><td><code>&amp;gt;</code></td></tr>
+<tr><td>&amp;</td><td><code>&amp;amp;</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="メディアのインポート"><a class="header" href="#メディアのインポート">メディアのインポート</a></h2>
+<p>テキストファイルのインポートから音声と画像を含めたい場合は、ファイルを<a href="../files.html">collection.mediaフォルダ</a>にコピーします。<strong>メディアフォルダにサブディレクトリを入れないでください。一部の機能が動作しなくなります。</strong></p>
+<p>ファイルをコピーした後、テキストファイルのフィールドの1つを次のように変更します。</p>
+<pre><code>&lt;img src="myimage.jpg"&gt;
+</code></pre>
+<p>または</p>
+<pre><code>[sound:myaudio.mp3]
+</code></pre>
+<p>代わりに、ブラウザ画面の<a href="../browsing.html">検索と置換</a>機能を使用して、すべてのフィールドを一度に更新できます。各フィールドに「myaudio」のようなテキストが含まれており、音声を再生させたい場合は、(.*)を検索して「[sound:\1.mp3]」に置き換え、<strong>正規表現</strong>オプションを有効にします。</p>
+<p>これらの参照を含むテキストファイルをインポートする場合は、「HTMLを許可」オプションを有効にする必要があります。</p>
+<p>次のようにテンプレートでこれを行うことに誘惑されるかもしれません：</p>
+<pre><code>&lt;img src="{{field name}}"&gt;
+</code></pre>
+<p>Ankiは2つの理由でこれをサポートしていません：使用されているメディアの検索は、各カードをレンダリングする必要があるため高価であり、そのような機能は共有デッキのユーザーには明らかではありません。代わりに検索と置換のテクニックを使用してください。</p>
+<h2 id="大量メディア"><a class="header" href="#大量メディア">大量メディア</a></h2>
+<p>一度に大量のメディアをインポートする別のオプションは、<a href="https://ankiweb.net/shared/info/129299120">メディアインポートアドオン</a>を使用することです。
+このアドオンは、選択したフォルダ内のすべてのファイルのノートを自動的に作成し、表面にファイル名（ファイル拡張子を除く。apple.jpgというファイルがある場合、表面は「apple」と表示されます）、裏面に画像や音声を配置します。メディアとファイル名の異なる配置が必要な場合は、作成されたカードの<a href="../browsing.html">ノートタイプを変更</a>できます。</p>
+<h2 id="重複と更新"><a class="header" href="#重複と更新">重複と更新</a></h2>
+<p>テキストファイルをインポートするとき、Ankiは最初のフィールドを使用してノートが一意であるかどうかを判断します。デフォルトでは、インポートしているファイルの最初のフィールドがコレクション内の既存のノートの1つと一致し、その既存のノートがインポートしているタイプと同じタイプである場合、既存のノートの他のフィールドはインポートされたファイルの内容に基づいて更新されます。インポート画面のドロップダウンボックスでこの動作を変更できます。重複を完全に無視するか、既存のものを更新する代わりに新しいノートとしてインポートすることができます。</p>
+<p><strong>一致範囲</strong>設定は、重複がどのように識別されるかを制御します。<strong>ノートタイプ</strong>が選択されている場合、同じノートタイプを持つ別のノートが同じ最初のフィールドを持っている場合、Ankiは重複を識別します。<strong>ノートタイプとデッキ</strong>に設定すると、既存のノートがインポート先のデッキにもある場合にのみ重複がフラグ付けされます。</p>
+<p>更新をオンにしていて、インポートしているノートの古いバージョンがすでにコレクションにある場合、インポートダイアログで設定したデッキに移動されるのではなく、その場で（現在のデッキで）更新されます。ノートがその場で更新される場合、すべてのカードの既存のスケジューリング情報は保持されます。</p>
+<p>.apkgファイルでの重複の処理方法については、<a href="../exporting.html#%E3%83%91%E3%83%83%E3%82%B1%E3%83%BC%E3%82%B8%E3%83%87%E3%83%83%E3%82%AD">デッキパッケージ</a>セクションを参照してください。</p>
+<h2 id="ファイルヘッダー"><a class="header" href="#ファイルヘッダー">ファイルヘッダー</a></h2>
+<p>Anki 2.1.54以降は、インポートをより強力または便利にするためにテキストファイルに含めることができる特定のヘッダーをサポートしています。これらは<code>#key:value</code>ペアで構成され、ファイルの先頭に別々の行でリストする必要があります。</p>
+<div class="table-wrapper"><table><thead><tr><th>キー</th><th>許可される値</th><th>動作</th></tr></thead><tbody>
+<tr><td><code>separator</code></td><td><code>Comma</code>、<code>Semicolon</code>、<code>Tab</code>、<code>Space</code>、<code>Pipe</code>、<code>Colon</code>、または対応するリテラル文字</td><td>フィールド区切り文字を決定します。</td></tr>
+<tr><td><code>html</code></td><td><code>true</code>、<code>false</code></td><td>ファイルがHTMLとして扱われるかどうかを決定します。</td></tr>
+<tr><td><code>tags</code></td><td>スペースで区切られたタグのリスト</td><td>リストされたタグをインポートされたすべてのノートに追加します。</td></tr>
+<tr><td><code>columns</code></td><td>以前に設定した区切り文字で区切られた名前のリスト</td><td>列数を決定し、インポート時に指定された名前を表示します。</td></tr>
+<tr><td><code>notetype</code></td><td>ノートタイプ名またはID</td><td>存在する場合、ノートタイプをプリセットします。</td></tr>
+<tr><td><code>deck</code></td><td>デッキ名またはID</td><td>存在する場合、デッキをプリセットします。</td></tr>
+<tr><td><code>notetype column</code></td><td><code>1</code>、<code>2</code>、<code>3</code>、…</td><td>各ノートのノートタイプ名またはIDを含む列を決定します。<a href="#%E3%83%8E%E3%83%BC%E3%83%88%E3%82%BF%E3%82%A4%E3%83%97%E5%88%97">ノートタイプ列</a>を参照してください。</td></tr>
+<tr><td><code>deck column</code></td><td><code>1</code>、<code>2</code>、<code>3</code>、…</td><td>各ノートのデッキ名またはIDを含む列を決定します。<a href="#%E3%83%87%E3%83%83%E3%82%AD%E5%88%97">デッキ列</a>を参照してください。</td></tr>
+<tr><td><code>tags column</code></td><td><code>1</code>、<code>2</code>、<code>3</code>、…</td><td>各ノートのタグを含む列を決定します。</td></tr>
+<tr><td><code>guid column</code></td><td><code>1</code>、<code>2</code>、<code>3</code>、…</td><td>各ノートのGUIDを含む列を決定します。<a href="#guid%E5%88%97">GUID列</a>を参照してください。</td></tr>
+</tbody></table>
+</div>
+<p>一部のヘッダーにはさらなる意味があります。</p>
+<h3 id="ノートタイプ列"><a class="header" href="#ノートタイプ列">ノートタイプ列</a></h3>
+<p>通常、ファイルからのすべてのノートは単一のノートタイプにマッピングされます。ノートタイプ名またはIDを含む列がある場合、それが変わります。</p>
+<p>これにより、異なるノートタイプのノートをインポートでき、そのフィールドは暗黙的にマッピングされます：
+最初の通常列は、ノートタイプに関係なく、任意のノートの最初のフィールドに使用され、2番目の通常列は2番目のフィールドに使用されます。
+ここでの_通常列_とは、デッキ、タグ、ノートタイプ、GUIDなどの特別な情報を含まない列のことです。</p>
+<h3 id="デッキ列"><a class="header" href="#デッキ列">デッキ列</a></h3>
+<p>通常、テキストファイルのインポートの結果として作成された新しいカードは、選択した単一のデッキに配置されます。ただし、ファイルにデッキ列が含まれている場合、ノートの新しいカードは指定されたデッキに配置されます。デッキが存在しない場合、指定された名前のデッキが作成されます。</p>
+<h3 id="guid列"><a class="header" href="#guid列">GUID列</a></h3>
+<p>GUIDは_グローバルに一意な識別子_の略です。Ankiでノートを作成すると、Ankiは各ノートに一意のIDを割り当て、重複チェックに使用できます。GUIDを含めてノートをエクスポートすると、ノートに変更を加えることができ、GUIDフィールドを変更しない限り、ノートをインポートして既存のノートを更新できます。</p>
+<p>GUIDはAnkiによって作成されることを意図していることに注意してください。<code>MYNOTE0001</code>などの独自のIDを作成している場合は、AnkiのGUIDに割り当てる代わりに、最初のフィールドにIDを配置することをお勧めします。インポート時に、Ankiは重複チェックに最初のフィールドまたはGUIDのいずれかを使用できるため、ノートを更新できるようにするためにIDをGUIDにする必要はありません。</p>
+<p>もう1つ注意すべきことは、空でないGUIDを持つ行では重複オプションが機能しないことです。GUIDが提供され、すでにコレクションに存在する場合、重複は作成されません。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../importing/intro.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../importing/packaged-decks.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../importing/intro.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../importing/packaged-decks.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
