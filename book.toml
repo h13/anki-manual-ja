@@ -17,7 +17,7 @@ command = "mdbook-admonish"
 assets_version = "3.0.3" # do not edit: managed by `mdbook-admonish install`
 
 [output.html]
-git-repository-url = "https://github.com/ankitects/anki-manual/"
+git-repository-url = "https://github.com/h13/anki-manual-ja/"
 additional-css = ["css/misc.css", "css/mdbook-admonish.css"]
 smart-punctuation = true
 mathjax-support = true
