@@ -147,20 +147,20 @@ jobs:
           if ! git diff --cached --quiet; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
             
-            # Collect change summary
-            echo "CHANGE_SUMMARY<<EOF" >> $GITHUB_ENV
-            echo "### 📊 Change Summary" >> $GITHUB_ENV
-            echo "" >> $GITHUB_ENV
-            echo "**Modified files:** $(git diff --cached --name-only | wc -l)" >> $GITHUB_ENV
-            echo "" >> $GITHUB_ENV
-            echo "<details>" >> $GITHUB_ENV
-            echo "<summary>File changes</summary>" >> $GITHUB_ENV
-            echo "" >> $GITHUB_ENV
-            echo '```diff' >> $GITHUB_ENV
-            git diff --cached --stat | head -50 >> $GITHUB_ENV
-            echo '```' >> $GITHUB_ENV
-            echo "</details>" >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
+            # Collect change summary to a file
+            cat > change_summary.md <<'CHANGE_EOF'
+### 📊 Change Summary
+
+CHANGE_EOF
+            echo "**Modified files:** $(git diff --cached --name-only | wc -l)" >> change_summary.md
+            echo "" >> change_summary.md
+            echo "<details>" >> change_summary.md
+            echo "<summary>File changes</summary>" >> change_summary.md
+            echo "" >> change_summary.md
+            echo '```diff' >> change_summary.md
+            git diff --cached --stat | head -50 >> change_summary.md
+            echo '```' >> change_summary.md
+            echo "</details>" >> change_summary.md
             
             # Commit
             if [ "${{ github.event.inputs.dry_run }}" != "true" ]; then
@@ -202,8 +202,8 @@ This PR syncs changes from [ankitects/anki-manual@${{ steps.check.outputs.upstre
 EOF
           
           # Add change summary if available
-          if [ -n "${{ env.CHANGE_SUMMARY }}" ]; then
-            echo "${{ env.CHANGE_SUMMARY }}" >> pr_body.md
+          if [ -f change_summary.md ]; then
+            cat change_summary.md >> pr_body.md
             echo "" >> pr_body.md
           fi
           
