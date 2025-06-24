@@ -255,16 +255,29 @@ jobs:
           echo "PR body file contents:"
           cat pr_body.md
           
-          # Create PR with error handling
-          if PR_URL=$(gh pr create \
+          # Try to create labels first (ignore errors)
+          echo "Ensuring labels exist..."
+          gh label create "upstream-sync" --description "Changes from upstream repository" --color "0366d6" --repo "${{ github.repository }}" 2>/dev/null || true
+          gh label create "automated" --description "Automated by GitHub Actions" --color "f9d0c4" --repo "${{ github.repository }}" 2>/dev/null || true
+          gh label create "needs-review" --description "Requires manual review" --color "d93f0b" --repo "${{ github.repository }}" 2>/dev/null || true
+          
+          # Create PR (first without labels to avoid errors)
+          echo "Creating PR..."
+          PR_URL=$(gh pr create \
             --repo "${{ github.repository }}" \
             --title "🔄 Sync: Update from upstream (${{ steps.check.outputs.commit_count }} commits)" \
             --body-file pr_body.md \
             --base main \
-            --head "${{ steps.branch.outputs.branch_name }}" \
-            --label "upstream-sync,automated${{ steps.sync.outputs.unresolved_conflicts == 'true' && ',needs-review' || '' }}"); then
+            --head "${{ steps.branch.outputs.branch_name }}")
+          
+          if [ -n "$PR_URL" ]; then
             echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
             echo "✅ Created PR: $PR_URL"
+            
+            # Try to add labels after PR creation (ignore errors)
+            echo "Adding labels to PR..."
+            PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
+            gh pr edit "$PR_NUMBER" --add-label "upstream-sync,automated${{ steps.sync.outputs.unresolved_conflicts == 'true' && ',needs-review' || '' }}" --repo "${{ github.repository }}" 2>/dev/null || echo "Note: Some labels could not be added"
           else
             echo "❌ Failed to create PR"
             exit 1
