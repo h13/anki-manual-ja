@@ -36,11 +36,34 @@ jobs:
           private_key: ${{ secrets.APP_PRIVATE_KEY }}
         continue-on-error: true
 
+      - name: Check token availability
+        run: |
+          if [ -n "${{ steps.generate_token.outputs.token }}" ]; then
+            echo "✅ Using GitHub App token"
+            echo "token_type=app" >> $GITHUB_ENV
+          elif [ -n "${{ secrets.PAT_TOKEN }}" ]; then
+            echo "✅ Using Personal Access Token"
+            echo "token_type=pat" >> $GITHUB_ENV
+          else
+            echo "⚠️ Using default GITHUB_TOKEN - PR creation may fail"
+            echo "token_type=default" >> $GITHUB_ENV
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}
+          token: ${{ steps.generate_token.outputs.token || secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+
+      - name: Create labels if not exists
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token || secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          # Create labels if they don't exist
+          gh label create "upstream-sync" --description "Changes from upstream repository" --color "0366d6" || true
+          gh label create "automated" --description "Automated by GitHub Actions" --color "f9d0c4" || true
+          gh label create "needs-review" --description "Requires manual review" --color "d93f0b" || true
+          gh label create "needs-attention" --description "Requires immediate attention" --color "e11d21" || true
 
       - name: Configure git
         run: |
@@ -147,20 +170,20 @@ jobs:
           if ! git diff --cached --quiet; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
             
-            # Collect change summary
-            echo "CHANGE_SUMMARY<<EOF" >> $GITHUB_ENV
-            echo "### 📊 Change Summary" >> $GITHUB_ENV
-            echo "" >> $GITHUB_ENV
-            echo "**Modified files:** $(git diff --cached --name-only | wc -l)" >> $GITHUB_ENV
-            echo "" >> $GITHUB_ENV
-            echo "<details>" >> $GITHUB_ENV
-            echo "<summary>File changes</summary>" >> $GITHUB_ENV
-            echo "" >> $GITHUB_ENV
-            echo '```diff' >> $GITHUB_ENV
-            git diff --cached --stat | head -50 >> $GITHUB_ENV
-            echo '```' >> $GITHUB_ENV
-            echo "</details>" >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
+            # Collect change summary to a file
+            {
+              echo "### 📊 Change Summary"
+              echo ""
+              echo "**Modified files:** $(git diff --cached --name-only | wc -l)"
+              echo ""
+              echo "<details>"
+              echo "<summary>File changes</summary>"
+              echo ""
+              echo '```diff'
+              git diff --cached --stat | head -50
+              echo '```'
+              echo "</details>"
+            } > change_summary.md
             
             # Commit
             if [ "${{ github.event.inputs.dry_run }}" != "true" ]; then
@@ -186,63 +209,92 @@ jobs:
         if: steps.check.outputs.has_updates == 'true' && steps.sync.outputs.has_changes == 'true' && github.event.inputs.dry_run != 'true'
         id: pr
         env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token || secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          PR_BODY=$(cat <<'EOF'
-## 🔄 Automated Upstream Sync
-
-This PR syncs changes from [ankitects/anki-manual@${{ steps.check.outputs.upstream_short }}](https://github.com/ankitects/anki-manual/commit/${{ steps.check.outputs.upstream_commit }})
-
-### 📈 Sync Statistics
-- **Commits synced:** ${{ steps.check.outputs.commit_count }}
-- **Source:** `upstream/main`
-- **Target:** `main`
-
-${{ env.CHANGE_SUMMARY }}
-
-### 🛡️ Protected Files
-The following patterns were excluded from sync:
-EOF
-)
-          if [ "${{ steps.config.outputs.config_exists }}" == "true" ]; then
-            PR_BODY="${PR_BODY}
-$(yq eval '.exclude[] | "- `" + . + "`"' .github/sync-config.yml)"
-          else
-            PR_BODY="${PR_BODY}
-- \`src-ja/\`
-- \`book.toml\`
-- \`.github/workflows/sync-upstream.yml\`"
+          # Create PR body file
+          {
+            echo "## 🔄 Automated Upstream Sync"
+            echo ""
+            echo "This PR syncs changes from [ankitects/anki-manual@${{ steps.check.outputs.upstream_short }}](https://github.com/ankitects/anki-manual/commit/${{ steps.check.outputs.upstream_commit }})"
+            echo ""
+            echo "### 📈 Sync Statistics"
+            echo "- **Commits synced:** ${{ steps.check.outputs.commit_count }}"
+            echo "- **Source:** \`upstream/main\`"
+            echo "- **Target:** \`main\`"
+            echo ""
+          } > pr_body.md
+          
+          # Add change summary if available
+          if [ -f change_summary.md ]; then
+            cat change_summary.md >> pr_body.md
+            echo "" >> pr_body.md
           fi
+          
+          echo "### 🛡️ Protected Files" >> pr_body.md
+          echo "The following patterns were excluded from sync:" >> pr_body.md
+          
+          if [ "${{ steps.config.outputs.config_exists }}" == "true" ]; then
+            yq eval '.exclude[] | "- `" + . + "`"' .github/sync-config.yml >> pr_body.md
+          else
+            echo "- \`src-ja/\`" >> pr_body.md
+            echo "- \`book.toml\`" >> pr_body.md
+            echo "- \`.github/workflows/sync-upstream.yml\`" >> pr_body.md
+          fi
+          
+          echo "" >> pr_body.md
           
           if [ "${{ steps.sync.outputs.unresolved_conflicts }}" == "true" ]; then
-            PR_BODY="${PR_BODY}
-
-### ⚠️ Manual Review Required
-
-This PR contains conflicts that need manual resolution."
+            {
+              echo "### ⚠️ Manual Review Required"
+              echo ""
+              echo "This PR contains conflicts that need manual resolution."
+            } >> pr_body.md
           else
-            PR_BODY="${PR_BODY}
-
-### ✅ Auto-merge
-
-This PR will be automatically merged if all checks pass."
+            {
+              echo "### ✅ Auto-merge"
+              echo ""
+              echo "This PR will be automatically merged if all checks pass."
+            } >> pr_body.md
           fi
           
-          PR_BODY="${PR_BODY}
-
----
-<sub>🤖 Generated by GitHub Actions workflow \`sync-upstream.yml\`</sub>"
+          {
+            echo ""
+            echo "---"
+            echo "<sub>🤖 Generated by GitHub Actions workflow \`sync-upstream.yml\`</sub>"
+          } >> pr_body.md
 
           # Create PR
-          PR_URL=$(gh pr create \
-            --title "🔄 Sync: Update from upstream (${{ steps.check.outputs.commit_count }} commits)" \
-            --body "$PR_BODY" \
-            --base main \
-            --head ${{ steps.branch.outputs.branch_name }} \
-            --label "upstream-sync,automated${{ steps.sync.outputs.unresolved_conflicts == 'true' && ',needs-review' || '' }}")
+          echo "Creating PR with branch: ${{ steps.branch.outputs.branch_name }}"
+          echo "PR body file contents:"
+          cat pr_body.md
           
-          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
-          echo "✅ Created PR: $PR_URL"
+          # Try to create labels first (ignore errors)
+          echo "Ensuring labels exist..."
+          gh label create "upstream-sync" --description "Changes from upstream repository" --color "0366d6" --repo "${{ github.repository }}" 2>/dev/null || true
+          gh label create "automated" --description "Automated by GitHub Actions" --color "f9d0c4" --repo "${{ github.repository }}" 2>/dev/null || true
+          gh label create "needs-review" --description "Requires manual review" --color "d93f0b" --repo "${{ github.repository }}" 2>/dev/null || true
+          
+          # Create PR (first without labels to avoid errors)
+          echo "Creating PR..."
+          PR_URL=$(gh pr create \
+            --repo "${{ github.repository }}" \
+            --title "🔄 Sync: Update from upstream (${{ steps.check.outputs.commit_count }} commits)" \
+            --body-file pr_body.md \
+            --base main \
+            --head "${{ steps.branch.outputs.branch_name }}")
+          
+          if [ -n "$PR_URL" ]; then
+            echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+            echo "✅ Created PR: $PR_URL"
+            
+            # Try to add labels after PR creation (ignore errors)
+            echo "Adding labels to PR..."
+            PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
+            gh pr edit "$PR_NUMBER" --add-label "upstream-sync,automated${{ steps.sync.outputs.unresolved_conflicts == 'true' && ',needs-review' || '' }}" --repo "${{ github.repository }}" 2>/dev/null || echo "Note: Some labels could not be added"
+          else
+            echo "❌ Failed to create PR"
+            exit 1
+          fi
 
           # Auto-merge if no conflicts and not manual mode
           if [ "${{ github.event.inputs.create_pr }}" != "true" ] && [ "${{ steps.sync.outputs.unresolved_conflicts }}" != "true" ]; then
