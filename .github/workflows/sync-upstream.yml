@@ -42,6 +42,16 @@ jobs:
           token: ${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Create labels if not exists
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}
+        run: |
+          # Create labels if they don't exist
+          gh label create "upstream-sync" --description "Changes from upstream repository" --color "0366d6" || true
+          gh label create "automated" --description "Automated by GitHub Actions" --color "f9d0c4" || true
+          gh label create "needs-review" --description "Requires manual review" --color "d93f0b" || true
+          gh label create "needs-attention" --description "Requires immediate attention" --color "e11d21" || true
+
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
