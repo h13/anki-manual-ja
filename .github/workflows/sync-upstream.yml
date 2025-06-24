@@ -188,15 +188,15 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}
         run: |
-          PR_BODY=$(cat <<'EOF'
+          PR_BODY=$(cat <<EOF
 ## 🔄 Automated Upstream Sync
 
 This PR syncs changes from [ankitects/anki-manual@${{ steps.check.outputs.upstream_short }}](https://github.com/ankitects/anki-manual/commit/${{ steps.check.outputs.upstream_commit }})
 
 ### 📈 Sync Statistics
 - **Commits synced:** ${{ steps.check.outputs.commit_count }}
-- **Source:** `upstream/main`
-- **Target:** `main`
+- **Source:** \`upstream/main\`
+- **Target:** \`main\`
 
 ${{ env.CHANGE_SUMMARY }}
 
