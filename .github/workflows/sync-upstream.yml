@@ -251,15 +251,24 @@ jobs:
           } >> pr_body.md
 
           # Create PR
-          PR_URL=$(gh pr create \
+          echo "Creating PR with branch: ${{ steps.branch.outputs.branch_name }}"
+          echo "PR body file contents:"
+          cat pr_body.md
+          
+          # Create PR with error handling
+          if PR_URL=$(gh pr create \
+            --repo "${{ github.repository }}" \
             --title "🔄 Sync: Update from upstream (${{ steps.check.outputs.commit_count }} commits)" \
             --body-file pr_body.md \
             --base main \
-            --head ${{ steps.branch.outputs.branch_name }} \
-            --label "upstream-sync,automated${{ steps.sync.outputs.unresolved_conflicts == 'true' && ',needs-review' || '' }}")
-          
-          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
-          echo "✅ Created PR: $PR_URL"
+            --head "${{ steps.branch.outputs.branch_name }}" \
+            --label "upstream-sync,automated${{ steps.sync.outputs.unresolved_conflicts == 'true' && ',needs-review' || '' }}"); then
+            echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+            echo "✅ Created PR: $PR_URL"
+          else
+            echo "❌ Failed to create PR"
+            exit 1
+          fi
 
           # Auto-merge if no conflicts and not manual mode
           if [ "${{ github.event.inputs.create_pr }}" != "true" ] && [ "${{ steps.sync.outputs.unresolved_conflicts }}" != "true" ]; then
