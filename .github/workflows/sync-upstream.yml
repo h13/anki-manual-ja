@@ -148,19 +148,19 @@ jobs:
             echo "has_changes=true" >> $GITHUB_OUTPUT
             
             # Collect change summary to a file
-            cat > change_summary.md <<'CHANGE_EOF'
-### 📊 Change Summary
-
-CHANGE_EOF
-            echo "**Modified files:** $(git diff --cached --name-only | wc -l)" >> change_summary.md
-            echo "" >> change_summary.md
-            echo "<details>" >> change_summary.md
-            echo "<summary>File changes</summary>" >> change_summary.md
-            echo "" >> change_summary.md
-            echo '```diff' >> change_summary.md
-            git diff --cached --stat | head -50 >> change_summary.md
-            echo '```' >> change_summary.md
-            echo "</details>" >> change_summary.md
+            {
+              echo "### 📊 Change Summary"
+              echo ""
+              echo "**Modified files:** $(git diff --cached --name-only | wc -l)"
+              echo ""
+              echo "<details>"
+              echo "<summary>File changes</summary>"
+              echo ""
+              echo '```diff'
+              git diff --cached --stat | head -50
+              echo '```'
+              echo "</details>"
+            } > change_summary.md
             
             # Commit
             if [ "${{ github.event.inputs.dry_run }}" != "true" ]; then
