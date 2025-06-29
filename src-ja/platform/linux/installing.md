@@ -34,7 +34,7 @@ sudo ./install.sh
 
 一部のLinuxシステムでは、`tar xaf --use-compress-program=unzstd`を使用する必要があるかもしれません。
 
-4. `anki`と入力してEnterキーを押すことでAnkiを起動できます。問題が発生した場合は、左側のリンクを参照してください。
+4. `anki`と入力して<kbd>Enter</kbd>キーを押すことでAnkiを起動できます。問題が発生した場合は、左側のリンクを参照してください。
 
 ## アップグレード
 
