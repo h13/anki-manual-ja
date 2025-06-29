@@ -219,7 +219,7 @@ Rustupがインストールされていることを確認してください。</
 </code></pre>
 <h3 id="ソースチェックアウトから"><a class="header" href="#ソースチェックアウトから">ソースチェックアウトから</a></h3>
 <p>GitHubからAnkiリポジトリをクローンした場合、そこからインストールできます：</p>
-<pre><code>./ninja extract:protoc
+<pre><code>./ninja extract:protoc ftl_repo
 cargo install --path rslib/sync
 </code></pre>
 <h3 id="dockerを使用"><a class="header" href="#dockerを使用">Dockerを使用</a></h3>
@@ -234,8 +234,11 @@ cargo install --path rslib/sync
 <p>サーバーは、コレクションとメディアのコピーをフォルダに保存する必要があります。
 デフォルトでは~/.syncserverです。<code>SYNC_BASE</code>環境変数を定義することでこれを変更できます。</p>
 <ul>
-<li>これは、サーバーとクライアントが別々のコピーを保存する必要があるため、通常のAnkiデータフォルダと同じ場所であってはなりません。</li>
+<li>これは、サーバーとクライアントが別々のコピーを保存する必要があるため、通常のAnkiデータフォルダと同じ場所であってはなりません。
+<ul>
 <li>データをサーバーに同期する必要があり、サーバーフォルダにファイルを手動でコピーしてはいけません。</li>
+</ul>
+</li>
 </ul>
 <h2 id="パブリックアクセス"><a class="header" href="#パブリックアクセス">パブリックアクセス</a></h2>
 <p>サーバーは暗号化されていないHTTP接続でリッスンするため、インターネットに直接公開することは良いアイデアではありません。使用をローカルネットワークに制限するか、VPN（Tailscaleは簡単らしい）やHTTPSリバースプロキシなど、何らかの形式の暗号化をサーバーの前に配置する必要があります。</p>
