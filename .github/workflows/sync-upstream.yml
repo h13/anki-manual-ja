@@ -299,7 +299,7 @@ jobs:
           # Auto-merge if no conflicts and not manual mode
           if [ "${{ github.event.inputs.create_pr }}" != "true" ] && [ "${{ steps.sync.outputs.unresolved_conflicts }}" != "true" ]; then
             echo "🤖 Enabling auto-merge..."
-            gh pr merge --auto --merge "$PR_URL"
+            gh pr merge --auto --merge --delete-branch "$PR_URL"
           fi
 
     notify:
