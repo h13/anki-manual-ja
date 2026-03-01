@@ -24,14 +24,16 @@ Windowsのcmd.exeセッションで：
 
 ```
 set SYNC_USER1=user:pass
-"\Program Files\anki\anki.exe" --syncserver
+"\Program Files\anki\anki-console" --syncserver
 ```
 
 macOSのTerminal.appで：
 
 ```
-SYNC_USER1=user:pass /Applications/Anki.app/Contents/MacOS/anki --syncserver
+SYNC_USER1=user:pass /Applications/Anki.app/Contents/MacOS/launcher --syncserver
 ```
+
+25.07より前の古いパッケージビルドの場合は、'launcher'を'anki'に置き換えてください。
 
 Linuxで：
 
@@ -99,7 +101,7 @@ cargo install --path rslib/sync
 デフォルトでは~/.syncserverです。`SYNC_BASE`環境変数を定義することでこれを変更できます。
 
 - これは、サーバーとクライアントが別々のコピーを保存する必要があるため、通常のAnkiデータフォルダと同じ場所であってはなりません。
-  - データをサーバーに同期する必要があり、サーバーフォルダにファイルを手動でコピーしてはいけません。
+- データをサーバーに同期する必要があり、サーバーフォルダにファイルを手動でコピーしてはいけません。
 
 ## パブリックアクセス
 
